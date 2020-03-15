@@ -28,7 +28,7 @@ func isIgnore(path string) bool {
 }
 
 // LogEntry logs every request
-func LogEntry(logger *zap.SugaredLogger) mux.MiddlewareFunc {
+func LogEntry(logger *zap.SugaredLogger, cutPath bool) mux.MiddlewareFunc {
 	return func(h http.Handler) http.Handler {
 		f := func(w http.ResponseWriter, r *http.Request) {
 			if isIgnore(r.URL.Path) {
@@ -36,10 +36,16 @@ func LogEntry(logger *zap.SugaredLogger) mux.MiddlewareFunc {
 				return
 			}
 
+			path := r.URL.Path
+			if cutPath {
+				if idx := strings.LastIndexByte(r.URL.Path, '/'); idx > 0 {
+					path = r.URL.Path[:idx]
+				}
+			}
 			ra := remoteAddr(r, logger)
-			logger.Infof("%s %s %s", ra, r.Method, r.URL.Path)
+			logger.Infof("%s %s %s", ra, r.Method, path)
 			defer func(s time.Time) {
-				logger.Infof("%s %s %s took %s", ra, r.Method, r.URL.Path, time.Since(s))
+				logger.Infof("%s %s %s took %s", ra, r.Method, path, time.Since(s))
 			}(time.Now())
 
 			h.ServeHTTP(w, r)
