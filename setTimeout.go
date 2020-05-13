@@ -18,7 +18,8 @@ func SetTimeout(to time.Duration) mux.MiddlewareFunc {
 		f := func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithDeadline(r.Context(), time.Now().Add(to))
 			defer cancel()
-			h.ServeHTTP(w, r.WithContext(ctx))
+			req := r.Clone(ctx)
+			h.ServeHTTP(w, req)
 		}
 		return http.HandlerFunc(f)
 	}
