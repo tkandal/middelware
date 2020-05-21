@@ -30,7 +30,7 @@ func (w *responseWriter) WriteHeader(statusCode int) {
 }
 
 // PrometheusMetrics collect request metrics
-func PrometheusMetrics(progName string) mux.MiddlewareFunc {
+func PrometheusMetrics(progName string, cutPath bool) mux.MiddlewareFunc {
 	requestsDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: fmt.Sprintf("%s_requests_duration_ms", progName),
@@ -51,6 +51,12 @@ func PrometheusMetrics(progName string) mux.MiddlewareFunc {
 				h.ServeHTTP(w, r)
 				return
 			}
+			path := r.URL.Path
+			if cutPath {
+				if idx := strings.LastIndexByte(path, '/'); idx > 0 {
+					path = path[:idx]
+				}
+			}
 
 			rw := &responseWriter{
 				ResponseWriter: w,
@@ -59,7 +65,7 @@ func PrometheusMetrics(progName string) mux.MiddlewareFunc {
 
 			defer func(s time.Time) {
 				requestsDuration.With(prometheus.Labels{
-					"route":  r.URL.Path,
+					"route":  path,
 					"method": r.Method,
 					"status": strconv.FormatInt(int64(rw.statusCode), 10),
 				}).Observe(float64(time.Now().Sub(s).Nanoseconds() / int64(time.Millisecond)))
