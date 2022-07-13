@@ -68,7 +68,7 @@ func PrometheusMetrics(progName string, cutPath bool) mux.MiddlewareFunc {
 					"route":  path,
 					"method": r.Method,
 					"status": strconv.FormatInt(int64(rw.statusCode), 10),
-				}).Observe(float64(time.Now().Sub(s).Nanoseconds() / int64(time.Millisecond)))
+				}).Observe(float64(time.Now().Sub(s).Milliseconds()))
 			}(time.Now())
 
 			h.ServeHTTP(rw, r)
