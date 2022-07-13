@@ -43,11 +43,11 @@ func LogEntry(logger *zap.SugaredLogger, cutPath bool) mux.MiddlewareFunc {
 					path = r.URL.Path[:idx]
 				}
 			}
-			spanId := r.Header.Get(SpanID)
+			spanID := r.Header.Get(SpanID)
 			ra := remoteAddr(r, logger)
-			logger.Infow(fmt.Sprintf("%s %s %s", ra, r.Method, path), "span", spanId)
+			logger.Infow(fmt.Sprintf("%s %s %s", ra, r.Method, path), "span", spanID)
 			defer func(s time.Time) {
-				logger.Infow(fmt.Sprintf("%s %s %s took %s", ra, r.Method, path, time.Since(s)), "span", spanId)
+				logger.Infow(fmt.Sprintf("%s %s %s took %s", ra, r.Method, path, time.Since(s)), "span", spanID)
 			}(time.Now())
 
 			h.ServeHTTP(w, r)

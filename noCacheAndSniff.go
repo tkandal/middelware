@@ -6,6 +6,7 @@ import "net/http"
  * Copyright (c) 2019 Norwegian University of Science and Technology
  */
 
+// NoCacheAndSniff set no cache headers in reponse.
 func NoCacheAndSniff(h http.Handler) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "private, no-cache, no-store, must-revalidate, max-age=0")
