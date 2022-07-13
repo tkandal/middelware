@@ -13,7 +13,7 @@ import (
 const (
 	// SpanID is the header name for a span identity.
 	SpanID = "SpanID"
-	idLen  = 16
+	idLen  = 8
 )
 
 // SetSpanID adds a span identity as a request header.
