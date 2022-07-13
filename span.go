@@ -12,7 +12,7 @@ import (
 
 const (
 	// SpanID is the header name for a span identity.
-	SpanID = "SpanID"
+	SpanID = "X-Span-ID"
 	idLen  = 8
 )
 
