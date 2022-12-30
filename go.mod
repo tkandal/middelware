@@ -1,6 +1,6 @@
 module github.com/tkandal/middelware
 
-go 1.13
+go 1.19
 
 require (
 	github.com/gorilla/mux v1.8.0
