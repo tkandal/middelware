@@ -35,17 +35,25 @@ func LogEntry(logger *zap.SugaredLogger, cutPath bool) mux.MiddlewareFunc {
 				h.ServeHTTP(w, r)
 				return
 			}
-
-			path := r.URL.Path
+			var path string
 			if cutPath {
+				path = r.URL.Path
 				if idx := strings.LastIndexByte(r.URL.Path, '/'); idx > 0 {
 					path = r.URL.Path[:idx]
 				}
 			}
 			ra := remoteAddr(r, logger)
-			logger.Infof("%s %s %s", ra, r.Method, path)
+			if len(path) > 0 {
+				logger.Infof("%s %s %s?%s", ra, r.Method, path, r.URL.RawQuery)
+			} else {
+				logger.Infof("%s %s %s?%s", ra, r.Method, r.URL.Path, r.URL.RawQuery)
+			}
 			defer func(s time.Time) {
-				logger.Infof("%s %s %s took %s", ra, r.Method, path, time.Since(s))
+				if len(path) > 0 {
+					logger.Infof("%s %s %s?%s took %s", ra, r.Method, path, r.URL.RawQuery, time.Since(s))
+				} else {
+					logger.Infof("%s %s %s?%s took %s", ra, r.Method, r.URL.Path, r.URL.RawQuery, time.Since(s))
+				}
 			}(time.Now())
 
 			h.ServeHTTP(w, r)
