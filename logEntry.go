@@ -1,6 +1,7 @@
 package middelware
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -43,17 +44,28 @@ func LogEntry(logger *zap.SugaredLogger, cutPath bool) mux.MiddlewareFunc {
 				}
 			}
 			ra := remoteAddr(r, logger)
+
+			var line string
 			if len(path) > 0 {
-				logger.Infof("%s %s %s?%s", ra, r.Method, path, r.URL.RawQuery)
+				line = fmt.Sprintf("%s %s %s", ra, r.Method, path)
 			} else {
-				logger.Infof("%s %s %s?%s", ra, r.Method, r.URL.Path, r.URL.RawQuery)
+				line = fmt.Sprintf("%s %s %s", ra, r.Method, r.URL.Path)
 			}
+			if len(r.URL.RawQuery) > 0 {
+				line += "?" + r.URL.RawQuery
+			}
+			logger.Info(line)
+
 			defer func(s time.Time) {
 				if len(path) > 0 {
-					logger.Infof("%s %s %s?%s took %s", ra, r.Method, path, r.URL.RawQuery, time.Since(s))
+					line = fmt.Sprintf("%s %s %s", ra, r.Method, path)
 				} else {
-					logger.Infof("%s %s %s?%s took %s", ra, r.Method, r.URL.Path, r.URL.RawQuery, time.Since(s))
+					line = fmt.Sprintf("%s %s %s", ra, r.Method, r.URL.Path)
 				}
+				if len(r.URL.RawQuery) > 0 {
+					line += "?" + r.URL.RawQuery
+				}
+				logger.Infof("%s took %s", line, time.Since(s))
 			}(time.Now())
 
 			h.ServeHTTP(w, r)
