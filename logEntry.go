@@ -57,14 +57,6 @@ func LogEntry(logger *zap.SugaredLogger, cutPath bool) mux.MiddlewareFunc {
 			logger.Info(line)
 
 			defer func(s time.Time) {
-				if len(path) > 0 {
-					line = fmt.Sprintf("%s %s %s", ra, r.Method, path)
-				} else {
-					line = fmt.Sprintf("%s %s %s", ra, r.Method, r.URL.Path)
-				}
-				if len(r.URL.RawQuery) > 0 {
-					line += "?" + r.URL.RawQuery
-				}
 				logger.Infof("%s took %s", line, time.Since(s))
 			}(time.Now())
 
